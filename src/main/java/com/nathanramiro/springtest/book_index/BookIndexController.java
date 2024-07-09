@@ -1,0 +1,38 @@
+package com.nathanramiro.springtest.book_index;
+
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RestController
+@RequestMapping("api/bookindex")
+public class BookIndexController {
+    private final JdbcBookIndexRepository jdbcBookIndexRepository;
+
+    public BookIndexController(JdbcBookIndexRepository jdbcBookIndexRepository) {
+        this.jdbcBookIndexRepository = jdbcBookIndexRepository;
+    }
+
+    @GetMapping("")
+    public List<BookIndex> getAll() {
+        return jdbcBookIndexRepository.getAll();
+    }
+
+    @GetMapping("/find/{id}")
+    public BookIndex getByID(@PathVariable Integer id) {
+                            //@RequestParam == path/path?key=val
+        Optional<BookIndex> bkIndex = jdbcBookIndexRepository.getByID(id);
+        if (bkIndex.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return bkIndex.get();
+    }
+
+}
