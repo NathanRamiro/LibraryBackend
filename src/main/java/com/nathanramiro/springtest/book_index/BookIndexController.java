@@ -8,8 +8,8 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("api/bookindex")
@@ -25,14 +25,20 @@ public class BookIndexController {
         return jdbcBookIndexRepository.getAll();
     }
 
-    @GetMapping("/find/{id}")
-    public BookIndex getByID(@PathVariable Integer id) {
-                            //@RequestParam == path/path?key=val
+    @GetMapping("/find/id")
+    public BookIndex getByID(@RequestParam Integer id) {
+        // @RequestParam == path/path?key=val
         Optional<BookIndex> bkIndex = jdbcBookIndexRepository.getByID(id);
         if (bkIndex.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return bkIndex.get();
+    }
+
+    @GetMapping("/find/genre")
+    public List<BookIndex> getByGenre(@RequestParam List<String> genres) {
+
+        return jdbcBookIndexRepository.getByGenre(genres);
     }
 
 }
