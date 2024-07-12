@@ -24,21 +24,20 @@ public class JdbcGenreRepository implements GenreRepository {
     public List<BookIndex> getBookByGenre(List<String> genres) {
 
         String sql = """
-                SELECT i.book_name
-                FROM book_index i inner join genre g
-                on g.index_id = i.index_id
+                SELECT i.index_id, i.book_name, i.isbn, i.publisher, i.writer
+                FROM book_index i inner join genre g on g.index_id = i.index_id
                 WHERE g.genre_name in (:?)
-                GROUP BY i.book_name
-                ORDER BY COUNT(i.index_id) DESC;
-                """;
+                GROUP BY i.index_id
+                ORDER BY COUNT(i.index_id) DESC
+                                """;
 
         String inParams = "";
 
-        for (short i = 0; i < genres.size(); i++) {
-            inParams.concat("?,");
+        for (int i = 0; i < genres.size(); i++) {
+            inParams = inParams.concat("?,");
         }
-        
-        inParams = inParams.substring(0, inParams.length()-1);
+
+        inParams = inParams.substring(0, inParams.length() - 1);
 
         return jdbcClient.sql(sql.replace(":?", inParams))
                 .params(genres)

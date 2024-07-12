@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -25,9 +26,10 @@ public class GenreController {
         return jdbcGenreRepository.getAll();
     }
 
-    @GetMapping("/find")//TODO: findByGenre should be on BookIndex
-    public List<BookIndex> getByGenre(@RequestBody List<String> genres){
-        return jdbcGenreRepository.getBookByGenre(genres);
+    @GetMapping("/find")//TODO: findByGenre should be on BookIndex, also add bad request at genre.lenght==0
+    public List<BookIndex> getByGenre(@RequestBody String[] genres){
+
+        return jdbcGenreRepository.getBookByGenre(Arrays.asList(genres));
     }
     
 
