@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.book_unit;
+package com.nathanramiro.springtest.bookunit;
 
 import java.util.List;
 import java.util.Optional;

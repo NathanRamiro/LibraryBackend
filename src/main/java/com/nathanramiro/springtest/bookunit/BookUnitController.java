@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.book_unit;
+package com.nathanramiro.springtest.bookunit;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;

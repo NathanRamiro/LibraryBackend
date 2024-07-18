@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.book_index;
+package com.nathanramiro.springtest.bookindex;
 
 import java.util.List;
 import java.util.Optional;

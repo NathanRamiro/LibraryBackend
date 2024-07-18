@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.book_index;
+package com.nathanramiro.springtest.bookindex;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;

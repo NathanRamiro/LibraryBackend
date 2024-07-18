@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.taken_unit;
+package com.nathanramiro.springtest.takenunit;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;

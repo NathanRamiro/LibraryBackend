@@ -1,4 +1,4 @@
-package com.nathanramiro.springtest.taken_unit;
+package com.nathanramiro.springtest.takenunit;
 
 import java.time.LocalDate;
 
