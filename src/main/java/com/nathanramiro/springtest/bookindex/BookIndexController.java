@@ -27,7 +27,7 @@ public class BookIndexController {
 
     @GetMapping("/find/id")
     public BookIndex getByID(@RequestParam Integer id) {
-        // @RequestParam == path/path?key=val
+        
         Optional<BookIndex> bkIndex = jdbcBookIndexRepository.getByID(id);
         if (bkIndex.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
