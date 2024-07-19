@@ -25,7 +25,12 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     @Override
     public List<TakenUnit> getAllPastDue() {
 
-        return jdbcClient.sql("SELECT * from taken_unit_list WHERE due_date < CURRENT_DATE")
+        return jdbcClient.sql("""
+                SELECT t.*
+                from taken_unit_list t left JOIN returned_list r
+                on t.taken_id = r.taken_id
+                WHERE due_date < CURRENT_DATE AND r.taken_id is NULL
+                """)
                 .query(TakenUnit.class)
                 .list();
     }
