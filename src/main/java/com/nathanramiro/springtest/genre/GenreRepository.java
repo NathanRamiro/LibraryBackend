@@ -3,5 +3,7 @@ package com.nathanramiro.springtest.genre;
 import java.util.List;
 
 public interface GenreRepository {
-    public List<String> getAll();
+    List<String> getAll();
+
+    void postNewGenre(List<Genre> genres);
 }
