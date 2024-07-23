@@ -8,5 +8,5 @@ public interface BookIndexRepository {
 
     Optional<BookIndex> getByID(Integer id);
 
-    List<BookIndex> getByGenre(List<String>genres);
+    List<BookIndex> getByGenre(List<String> genres);
 }
