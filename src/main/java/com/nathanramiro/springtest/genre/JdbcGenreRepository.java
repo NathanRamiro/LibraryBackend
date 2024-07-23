@@ -16,7 +16,7 @@ public class JdbcGenreRepository implements GenreRepository {
 
     @Override
     public List<String> getAll() {
-        return jdbcClient.sql("SELECT DISTINCT genre_name FROM genre ORDER BY genre_name ASC")
+        return jdbcClient.sql("SELECT genre_name FROM genre ORDER BY genre_name ASC")
                 .query(String.class)
                 .list();
     }
@@ -25,16 +25,18 @@ public class JdbcGenreRepository implements GenreRepository {
     public void postNewGenre(List<Genre> genres) {
 
         String sql = """
-                INSERT INTO genre (genre_name,index_id)
+                INSERT INTO genre (genre_name)
                 VALUES
                 """;
 
-        for (Genre genre : genres) {
-            sql += " (?," + genre.index_id() + "),";
+        for (int i = 0; i < genres.size(); i++) {
+            sql += " (?),";
         }
 
         sql = sql.substring(0, sql.length() - 1);
 
+        sql += " on conflict (genre_name) do nothing";
+        
         List<String> params = new ArrayList<>();
 
         for (Genre genre : genres) {
