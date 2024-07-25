@@ -9,4 +9,6 @@ public interface BookIndexRepository {
     Optional<BookIndex> getByID(Integer id);
 
     List<BookIndex> getByGenre(List<String> genres);
+
+    void postNewEntry(List<BookIndex> bookIndex);
 }

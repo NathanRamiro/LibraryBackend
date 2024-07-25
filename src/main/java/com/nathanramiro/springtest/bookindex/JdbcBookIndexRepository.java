@@ -1,5 +1,6 @@
 package com.nathanramiro.springtest.bookindex;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,4 +57,35 @@ public class JdbcBookIndexRepository implements BookIndexRepository {
                 .list();
     }
 
+    @Override
+    public void postNewEntry(List<BookIndex> bookIndexes) {
+
+        String sql = """
+                INSERT INTO
+                book_index (
+                	book_name, isbn, writer, publisher
+                )
+                VALUES
+                """;
+
+        for (int i = 0; i < bookIndexes.size(); i++) {
+            sql += " (?,?,?,?),";
+        }
+
+        sql = sql.substring(0, sql.length() - 1);
+        sql += " ON CONFLICT ON CONSTRAINT unique_row DO NOTHING";
+
+        List<String> params = new ArrayList<>();
+
+        for (BookIndex currIndex : bookIndexes) {
+            params.add(currIndex.book_name());
+            params.add(currIndex.isbn());
+            params.add(currIndex.writer());
+            params.add(currIndex.publisher());
+        }
+
+        jdbcClient.sql(sql)
+                .params(params)
+                .update();
+    }
 }
