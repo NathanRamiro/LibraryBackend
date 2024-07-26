@@ -26,11 +26,21 @@ public class GenreController {
         return jdbcGenreRepository.getAll();
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create/genre")
     @ResponseStatus(value = HttpStatus.CREATED)
     public void postNewGenre(@Valid @RequestBody List<Genre> genres) {
 
         jdbcGenreRepository.postNewGenre(genres);
+    }
+
+    @PostMapping("/create/addto")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public void postAddIndexToGenre(@Valid @RequestBody List<IndexGenreComp> indexGenreComp) {
+
+        for (IndexGenreComp currComp : indexGenreComp) {
+
+            jdbcGenreRepository.postAddIndexToGenre(currComp);
+        }
     }
 
 }

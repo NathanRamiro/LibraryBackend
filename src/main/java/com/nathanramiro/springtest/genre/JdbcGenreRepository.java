@@ -36,7 +36,7 @@ public class JdbcGenreRepository implements GenreRepository {
         sql = sql.substring(0, sql.length() - 1);
 
         sql += " on conflict (genre_name) do nothing";
-        
+
         List<String> params = new ArrayList<>();
 
         for (Genre genre : genres) {
@@ -45,6 +45,27 @@ public class JdbcGenreRepository implements GenreRepository {
 
         jdbcClient.sql(sql)
                 .params(params)
+                .update();
+    }
+
+    @Override
+    public void postAddIndexToGenre(IndexGenreComp indexGenreComp) {
+
+        String sql = """
+                INSERT INTO genre_to_index_map (index_id,genre_id)
+                SELECT bi.index_id, g.genre_id
+                FROM book_index bi,genre g
+                WHERE (bi.book_name,bi.isbn,bi.writer,bi.publisher) = (:book_name,:isbn,:writer,:publisher)
+                AND g.genre_name IN (:inParams)
+                ON CONFLICT DO NOTHING
+                """;
+
+        jdbcClient.sql(sql)
+                .param("book_name", indexGenreComp.bookIndex().book_name())
+                .param("isbn", indexGenreComp.bookIndex().isbn())
+                .param("writer", indexGenreComp.bookIndex().writer())
+                .param("publisher", indexGenreComp.bookIndex().publisher())
+                .param("inParams",indexGenreComp.genres())
                 .update();
     }
 }

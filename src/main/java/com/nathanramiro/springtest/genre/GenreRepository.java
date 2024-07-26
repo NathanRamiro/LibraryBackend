@@ -6,4 +6,6 @@ public interface GenreRepository {
     List<String> getAll();
 
     void postNewGenre(List<Genre> genres);
+
+    void postAddIndexToGenre(IndexGenreComp indexGenreComp);
 }
