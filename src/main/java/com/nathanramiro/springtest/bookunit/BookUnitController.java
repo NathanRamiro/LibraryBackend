@@ -2,6 +2,7 @@ package com.nathanramiro.springtest.bookunit;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("api/bookunits")
@@ -41,4 +45,9 @@ public class BookUnitController {
         return bkUnit.get();
     }
     
+    @PostMapping("/create")
+    public List<BookUnit> postNewUnit(@RequestBody List<Integer> unit_id_List) {
+        
+        return jdbcBookUnitRepository.postNewUnit(unit_id_List);
+    }
 }

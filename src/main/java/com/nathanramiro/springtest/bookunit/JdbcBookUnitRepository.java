@@ -42,4 +42,25 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
                 .optional();
     }
 
+    @Override
+    public List<BookUnit> postNewUnit(List<Integer> index_id_List) {
+
+        String sql = """
+                INSERT INTO book_unit (index_id)
+                VALUES :vals
+                RETURNING *
+                """;
+
+        String vals = "";
+        for (Integer currInt : index_id_List) {
+            vals += " (" + currInt + "),";
+        }
+
+        sql = sql.replace(":vals", vals.substring(0, vals.length() - 1));
+
+        return jdbcClient.sql(sql)
+                .query(BookUnit.class)
+                .list();
+    }
+
 }

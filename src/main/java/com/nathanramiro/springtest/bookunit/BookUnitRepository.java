@@ -9,4 +9,6 @@ public interface BookUnitRepository {
     List<BookUnit> getAllByBkIndex(Integer index_id, Boolean availableOnly);
 
     Optional<BookUnit> getByID(Integer unit_id);
+
+    List<BookUnit> postNewUnit(List<Integer> index_id_List);
 }
