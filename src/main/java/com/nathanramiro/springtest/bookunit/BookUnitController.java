@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequestMapping("api/bookunits")
 public class BookUnitController {
@@ -30,7 +29,10 @@ public class BookUnitController {
     }
 
     @GetMapping("/find/bkindex")
-    public List<BookUnit> getAllByBkIndex(@RequestParam Integer index_id, @RequestParam(defaultValue = "false") Boolean availableOnly) {
+    public List<BookUnit> getAllByBkIndex(
+            @RequestParam Integer index_id,
+            @RequestParam(defaultValue = "false") Boolean availableOnly) {
+
         return jdbcBookUnitRepository.getAllByBkIndex(index_id, availableOnly);
     }
 
@@ -44,10 +46,10 @@ public class BookUnitController {
 
         return bkUnit.get();
     }
-    
+
     @PostMapping("/create")
-    public List<BookUnit> postNewUnit(@RequestBody List<Integer> unit_id_List) {
-        
-        return jdbcBookUnitRepository.postNewUnit(unit_id_List);
+    public List<BookUnit> postNewUnit(@RequestBody List<Integer> index_id_List) {
+
+        return jdbcBookUnitRepository.postNewUnit(index_id_List);
     }
 }
