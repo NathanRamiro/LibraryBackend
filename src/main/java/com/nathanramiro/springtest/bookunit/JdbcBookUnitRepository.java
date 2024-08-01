@@ -3,8 +3,10 @@ package com.nathanramiro.springtest.bookunit;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Repository
 public class JdbcBookUnitRepository implements BookUnitRepository {
@@ -45,22 +47,55 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
     @Override
     public List<BookUnit> postNewUnit(List<Integer> index_id_List) {
 
+        if (index_id_List.size() == 0) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "request must not be empty");
+        }
+
+        String vals = "";
+        for (Integer currInt : index_id_List) {
+
+            if (currInt == null) {
+
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "request must not include Null values");
+            }
+            vals += "(" + currInt + "),";
+        }
+        vals = vals.substring(0, vals.length() - 1);
+
+        String findMatchSql = """
+                WITH vals(index_id)
+                AS (VALUES :vals)
+                SELECT v.index_id
+                FROM book_index bi RIGHT JOIN vals v
+                ON bi.index_id = v.index_id
+                WHERE bi.index_id IS NULL
+                """;
+
+        List<Integer> invalidIDs = jdbcClient.sql(findMatchSql.replace(":vals", vals))
+                .query(Integer.class)
+                .list();
+
+        if (invalidIDs.size() > 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "request contains invalid books:" + invalidIDs.toString());
+        }
+
         String sql = """
                 INSERT INTO book_unit (index_id)
                 VALUES :vals
                 RETURNING *
                 """;
 
-        String vals = "";
-        for (Integer currInt : index_id_List) {
-            vals += " (" + currInt + "),";
-        }
-
-        sql = sql.replace(":vals", vals.substring(0, vals.length() - 1));
-
-        return jdbcClient.sql(sql)
+        return jdbcClient.sql(sql.replace(":vals", vals))
                 .query(BookUnit.class)
                 .list();
+
     }
 
 }
