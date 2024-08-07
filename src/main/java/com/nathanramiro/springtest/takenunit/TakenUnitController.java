@@ -3,6 +3,9 @@ package com.nathanramiro.springtest.takenunit;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @RestController
@@ -61,6 +68,13 @@ public class TakenUnitController {
         }
 
         return tkUnit.get();
+    }
+
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postTakenUnit(@Valid @NotEmpty @RequestBody List<TakenUnit> takenUnitList) {
+
+        jdbcTakenUnitListRepository.postTakenUnit(takenUnitList);
     }
 
 }

@@ -13,4 +13,6 @@ public interface TakenUnitRepository {
     Optional<TakenUnit> getByUnitID(Integer unit_id);
 
     Optional<TakenUnit> getByID(Integer taken_id);
+
+    void postTakenUnit(List<TakenUnit> takenUnitList);
 }
