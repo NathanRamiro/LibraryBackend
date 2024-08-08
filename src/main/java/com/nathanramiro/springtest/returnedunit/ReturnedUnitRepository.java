@@ -9,4 +9,6 @@ public interface ReturnedUnitRepository {
     Optional<ReturnedUnit> getByTakenID(Integer taken_id);
 
     Optional<ReturnedUnit> getByID(Integer returned_id);
+
+    void postReturnedUnit(List<ReturnedUnit> returnedUnits);
 }
