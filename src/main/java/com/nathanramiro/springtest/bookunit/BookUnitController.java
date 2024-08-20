@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class BookUnitController {
 
     @GetMapping("")
     public List<BookUnit> getAll(@RequestParam(defaultValue = "false") Boolean availableOnly) {
+
         return jdbcBookUnitRepository.getAll(availableOnly);
     }
 
@@ -38,6 +40,7 @@ public class BookUnitController {
 
     @GetMapping("/find/id")
     public BookUnit getByID(@RequestParam Integer unit_id) {
+
         Optional<BookUnit> bkUnit = jdbcBookUnitRepository.getByID(unit_id);
 
         if (bkUnit.isEmpty()) {
@@ -45,6 +48,18 @@ public class BookUnitController {
         }
 
         return bkUnit.get();
+    }
+
+    @GetMapping("/find/uuid")
+    public BookUnit getByUUID(@RequestParam UUID unit_uuid) {
+
+        Optional<BookUnit> bookUnit = jdbcBookUnitRepository.getByUUID(unit_uuid);
+
+        if (bookUnit.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND);
+        }
+        return bookUnit.orElseThrow();
     }
 
     @PostMapping("/create")

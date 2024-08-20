@@ -2,6 +2,7 @@ package com.nathanramiro.springtest.bookunit;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -40,6 +41,15 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
 
         return jdbcClient.sql("SELECT * from book_unit where unit_id = :unit_id")
                 .param("unit_id", unit_id)
+                .query(BookUnit.class)
+                .optional();
+    }
+
+    @Override
+    public Optional<BookUnit> getByUUID(UUID unit_uuid) {
+
+        return jdbcClient.sql("SELECT * FROM book_unit bu WHERE bu.unit_uuid = :unit_uuid")
+                .param("unit_uuid", unit_uuid)
                 .query(BookUnit.class)
                 .optional();
     }
