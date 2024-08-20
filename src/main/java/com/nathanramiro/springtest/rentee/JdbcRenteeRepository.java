@@ -15,6 +15,9 @@ public class JdbcRenteeRepository implements RenteeRepository {
 
     private final JdbcClient jdbcClient;
 
+    private final String phoneRegex = "[0-9]{11}";
+    private final String emailRegex = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$";
+
     public JdbcRenteeRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
@@ -48,11 +51,10 @@ public class JdbcRenteeRepository implements RenteeRepository {
     @Override
     public List<Rentee> getByPhone(String rentee_phone) {
 
-        if (rentee_phone.length()==0) {
+        if (rentee_phone.length() == 0) {
             throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "rentee_phone must not be empty"
-            );
+                    HttpStatus.BAD_REQUEST,
+                    "rentee_phone must not be empty");
         }
 
         String sql = """
@@ -71,11 +73,10 @@ public class JdbcRenteeRepository implements RenteeRepository {
     @Override
     public List<Rentee> getByEmail(String rentee_email) {
 
-        if (rentee_email.length()==0) {
+        if (rentee_email.length() == 0) {
             throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "rentee_email must not be empty"
-            );
+                    HttpStatus.BAD_REQUEST,
+                    "rentee_email must not be empty");
         }
 
         String sql = """
@@ -94,23 +95,57 @@ public class JdbcRenteeRepository implements RenteeRepository {
     @Override
     public void postNewRentee(List<Rentee> rentees) {
 
-        String sql = """
-                INSERT INTO rentee (rentee_name,rentee_phone,rentee_email)
-                VALUES
-                """;
-
         HashMap<String, String> valMap = new HashMap<>();
+        String params = "";
 
+        boolean hasError = false;
+        String errors = "";
         for (int i = 0; i < rentees.size(); i++) {
-            sql += " (:name" + i + ",:phone" + i + ",:email" + i + "),";
+
+            String currPhone = rentees.get(i).rentee_phone();
+            String currEmail = rentees.get(i).rentee_email();
+
+            try {
+                if (!currPhone.matches(phoneRegex)) {
+                    hasError = true;
+                    errors += "rentee[" + i + "]:invalid phone number (" + currPhone + ");";
+                }
+            } catch (NullPointerException e) {
+                // all good
+            }
+            try {
+                if (!currEmail.matches(emailRegex)) {
+                    hasError = true;
+                    errors += "rentee[" + i + "]:invalid e-mail (" + currEmail + ");";
+                }
+            } catch (NullPointerException e) {
+                // all good
+            }
+            if (hasError) {
+                continue;
+            }
+
+            params += "(:name" + i + ",:phone" + i + ",:email" + i + "),";
             valMap.put("name" + i, rentees.get(i).rentee_name());
-            valMap.put("phone" + i, rentees.get(i).rentee_phone());
-            valMap.put("email" + i, rentees.get(i).rentee_email());
+            valMap.put("phone" + i, currPhone);
+            valMap.put("email" + i, currEmail);
         }
 
-        sql = sql.substring(0, sql.length() - 1) + " ON CONFLICT DO NOTHING";
+        if (hasError) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    errors);
+        }
 
-        jdbcClient.sql(sql)
+        params = params.substring(0, params.length() - 1);
+
+        String sql = """
+                INSERT INTO rentee (rentee_name,rentee_phone,rentee_email)
+                VALUES :params
+                ON CONFLICT DO NOTHING
+                """;
+
+        jdbcClient.sql(sql.replace(":params", params))
                 .params(valMap)
                 .update();
     }
