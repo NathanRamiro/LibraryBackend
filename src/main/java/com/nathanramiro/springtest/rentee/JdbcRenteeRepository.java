@@ -15,9 +15,6 @@ public class JdbcRenteeRepository implements RenteeRepository {
 
     private final JdbcClient jdbcClient;
 
-    private final String phoneRegex = "[0-9]{11}";
-    private final String emailRegex = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$";
-
     public JdbcRenteeRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
@@ -102,21 +99,22 @@ public class JdbcRenteeRepository implements RenteeRepository {
         String errors = "";
         for (int i = 0; i < rentees.size(); i++) {
 
-            String currPhone = rentees.get(i).rentee_phone();
-            String currEmail = rentees.get(i).rentee_email();
+            Rentee currRentee = rentees.get(i);
 
             try {
-                if (!currPhone.matches(phoneRegex)) {
+                if (!currRentee.hasValidPhone()) {
                     hasError = true;
-                    errors += "rentee[" + i + "]:invalid phone number (" + currPhone + ");";
+                    errors += "rentee[" + i + "]:invalid phone number ("
+                            + currRentee.rentee_phone() + ");";
                 }
             } catch (NullPointerException e) {
                 // all good
             }
             try {
-                if (!currEmail.matches(emailRegex)) {
+                if (!currRentee.hasValidEmail()) {
                     hasError = true;
-                    errors += "rentee[" + i + "]:invalid e-mail (" + currEmail + ");";
+                    errors += "rentee[" + i + "]:invalid e-mail ("
+                            + currRentee.rentee_email() + ");";
                 }
             } catch (NullPointerException e) {
                 // all good
@@ -126,9 +124,9 @@ public class JdbcRenteeRepository implements RenteeRepository {
             }
 
             params += "(:name" + i + ",:phone" + i + ",:email" + i + "),";
-            valMap.put("name" + i, rentees.get(i).rentee_name());
-            valMap.put("phone" + i, currPhone);
-            valMap.put("email" + i, currEmail);
+            valMap.put("name" + i, currRentee.rentee_name());
+            valMap.put("phone" + i, currRentee.rentee_phone());
+            valMap.put("email" + i, currRentee.rentee_email());
         }
 
         if (hasError) {
