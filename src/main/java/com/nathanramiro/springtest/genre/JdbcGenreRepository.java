@@ -1,10 +1,12 @@
 package com.nathanramiro.springtest.genre;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Repository
 public class JdbcGenreRepository implements GenreRepository {
@@ -22,29 +24,52 @@ public class JdbcGenreRepository implements GenreRepository {
     }
 
     @Override
+    public List<String> getByName(String genre_name) {
+
+        if (genre_name.length() < 2) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "genre_name below minimum length");
+        }
+
+        String sql = """
+                WITH vals(genre_name,score) AS (
+                SELECT g.genre_name, levenshtein_less_equal(g.genre_name , :genre_name , 50, 1, 50,50)
+                FROM genre g
+                )
+                SELECT v.genre_name
+                FROM vals v
+                WHERE v.score < 50
+                ORDER BY v.score ASC
+                """;
+
+        return jdbcClient.sql(sql)
+                .param("genre_name", genre_name)
+                .query(String.class)
+                .list();
+    }
+
+    @Override
     public void postNewGenre(List<Genre> genres) {
 
         String sql = """
                 INSERT INTO genre (genre_name)
-                VALUES
+                VALUES :params
+                on conflict (genre_name) do nothing
                 """;
 
+        String params = "";
+        HashMap<String, String> valMap = new HashMap<>(genres.size());
+
         for (int i = 0; i < genres.size(); i++) {
-            sql += " (?),";
+
+            params += "(:genre_name" + i + "),";
+            valMap.put("genre_name" + i, genres.get(i).genre_name());
         }
+        params = params.substring(0, params.length() - 1);
 
-        sql = sql.substring(0, sql.length() - 1);
-
-        sql += " on conflict (genre_name) do nothing";
-
-        List<String> params = new ArrayList<>();
-
-        for (Genre genre : genres) {
-            params.add(genre.genre_name());
-        }
-
-        jdbcClient.sql(sql)
-                .params(params)
+        jdbcClient.sql(sql.replace(":params", params))
+                .params(valMap)
                 .update();
     }
 
@@ -65,7 +90,7 @@ public class JdbcGenreRepository implements GenreRepository {
                 .param("isbn", indexGenreComp.bookIndex().isbn())
                 .param("writer", indexGenreComp.bookIndex().writer())
                 .param("publisher", indexGenreComp.bookIndex().publisher())
-                .param("inParams",indexGenreComp.genres())
+                .param("inParams", indexGenreComp.genres())
                 .update();
     }
 }
