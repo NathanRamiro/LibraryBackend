@@ -21,7 +21,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     @Override
     public List<TakenUnit> getAll() {
 
-        return jdbcClient.sql("SELECT * from taken_unit_list")
+        return jdbcClient.sql("SELECT * from taken_unit")
                 .query(TakenUnit.class)
                 .list();
     }
@@ -31,7 +31,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
 
         return jdbcClient.sql("""
                 SELECT t.*
-                from taken_unit_list t left JOIN returned_list r
+                from taken_unit t left JOIN returned_unit r
                 on t.taken_id = r.taken_id
                 WHERE due_date < CURRENT_DATE AND r.taken_id is NULL
                 """)
@@ -42,7 +42,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     @Override
     public List<TakenUnit> getAllByRentee(Integer rentee_id) {
 
-        return jdbcClient.sql("Select * from taken_unit_list where rentee_id = :rentee_id")
+        return jdbcClient.sql("Select * from taken_unit where rentee_id = :rentee_id")
                 .param("rentee_id", rentee_id)
                 .query(TakenUnit.class)
                 .list();
@@ -51,7 +51,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     @Override
     public Optional<TakenUnit> getByUnitID(Integer unit_id) {
 
-        return jdbcClient.sql("Select * from taken_unit_list where unit_id = :unit_id")
+        return jdbcClient.sql("Select * from taken_unit where unit_id = :unit_id")
                 .param("unit_id", unit_id)
                 .query(TakenUnit.class)
                 .optional();
@@ -60,7 +60,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     @Override
     public Optional<TakenUnit> getByID(Integer taken_id) {
 
-        return jdbcClient.sql("Select * from taken_unit_list where taken_id = :taken_id")
+        return jdbcClient.sql("Select * from taken_unit where taken_id = :taken_id")
                 .param("taken_id", taken_id)
                 .query(TakenUnit.class)
                 .optional();
@@ -156,7 +156,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
         }
 
         String sql = """
-                INSERT INTO taken_unit_list (unit_id,rentee_id,taken_date,due_date)
+                INSERT INTO taken_unit (unit_id,rentee_id,taken_date,due_date)
                 VALUES :params
                 """;
 

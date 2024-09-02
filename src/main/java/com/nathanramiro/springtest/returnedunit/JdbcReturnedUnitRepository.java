@@ -22,7 +22,7 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
     @Override
     public List<ReturnedUnit> getAll() {
 
-        return jdbcClient.sql("SELECT * from returned_list")
+        return jdbcClient.sql("SELECT * from returned_unit")
                 .query(ReturnedUnit.class)
                 .list();
     }
@@ -30,7 +30,7 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
     @Override
     public Optional<ReturnedUnit> getByTakenID(Integer taken_id) {
 
-        return jdbcClient.sql("SELECT * from returned_list where taken_id = :taken_id")
+        return jdbcClient.sql("SELECT * from returned_unit where taken_id = :taken_id")
                 .param("taken_id", taken_id)
                 .query(ReturnedUnit.class)
                 .optional();
@@ -39,7 +39,7 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
     @Override
     public Optional<ReturnedUnit> getByID(Integer returned_id) {
 
-        return jdbcClient.sql("SELECT * from returned_list where returned_id = :returned_id")
+        return jdbcClient.sql("SELECT * from returned_unit where returned_id = :returned_id")
                 .param("returned_id", returned_id)
                 .query(ReturnedUnit.class)
                 .optional();
@@ -76,7 +76,7 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
                 )
                 SELECT v.taken_id
                 FROM vals v
-                LEFT JOIN taken_unit_list tul
+                LEFT JOIN taken_unit tul
                 ON v.taken_id = tul.taken_id
                 WHERE tul.taken_id IS NULL
                 """;
@@ -99,7 +99,7 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
         }
 
         String sql = """
-                INSERT INTO returned_list (taken_id,returned_date)
+                INSERT INTO returned_unit (taken_id,returned_date)
                 VALUES :params
                 """;
 
