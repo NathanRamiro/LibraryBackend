@@ -16,7 +16,7 @@ public record Rentee(
         if (rentee_phone == null) {
             throw new NullPointerException();
         }
-        return rentee_phone.matches("[0-9]{11}");
+        return rentee_phone.matches("[1-9]{2}(?:[2-8]|9[1-9])[0-9]{7}");
     }
 
     public boolean hasValidEmail() {
