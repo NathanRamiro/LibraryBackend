@@ -123,7 +123,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "some entries have invalis IDs:" + invalidIDs.size());
+                    "some entries have invalid IDs:" + invalidIDs.size());
         }
 
         String validBooksSql = """
