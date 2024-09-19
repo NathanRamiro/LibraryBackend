@@ -55,10 +55,17 @@ public class JdbcRenteeRepository implements RenteeRepository {
         }
 
         String sql = """
+                WITH vals(rentee_id, score) AS (
+                SELECT r.rentee_id,
+                    levenshtein_less_equal(r.rentee_phone, :rentee_phone,
+                        50, 1, 50,50)
+                from rentee r
+                )
                 SELECT r.*
-                FROM rentee r
-                ORDER BY levenshtein(r.rentee_phone, :rentee_phone ,5,1,5) ASC
-                LIMIT 5
+                FROM vals v inner join rentee r
+                on v.rentee_id = r.rentee_id
+                WHERE v.score < 50
+                ORDER BY v.score ASC
                 """;
 
         return jdbcClient.sql(sql)
@@ -77,10 +84,15 @@ public class JdbcRenteeRepository implements RenteeRepository {
         }
 
         String sql = """
+                WITH vals(rentee_id, score) AS (
+                SELECT r.rentee_id, levenshtein_less_equal(r.rentee_email, :rentee_email, 50, 1, 50,50)
+                from rentee r
+                )
                 SELECT r.*
-                FROM rentee r
-                ORDER BY levenshtein(r.rentee_email, :rentee_email ,5,1,5) ASC
-                LIMIT 5
+                FROM vals v inner join rentee r
+                on v.rentee_id = r.rentee_id
+                WHERE v.score < 50
+                ORDER BY v.score asc
                 """;
 
         return jdbcClient.sql(sql)
