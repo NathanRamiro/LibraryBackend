@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Repository
@@ -67,6 +68,7 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
     }
 
     @Override
+    @Transactional
     public void postTakenUnit(List<TakenUnit> takenUnitList) {
 
         if (takenUnitList.size() == 0) {

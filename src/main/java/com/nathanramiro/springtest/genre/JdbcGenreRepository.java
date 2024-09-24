@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Repository
@@ -50,6 +51,7 @@ public class JdbcGenreRepository implements GenreRepository {
     }
 
     @Override
+    @Transactional
     public void postNewGenre(List<Genre> genres) {
 
         String sql = """
@@ -74,6 +76,7 @@ public class JdbcGenreRepository implements GenreRepository {
     }
 
     @Override
+    @Transactional
     public void postAddIndexToGenre(IndexGenreComp indexGenreComp) {
 
         String sql = """

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JdbcBookIndexRepository implements BookIndexRepository {
@@ -58,6 +59,7 @@ public class JdbcBookIndexRepository implements BookIndexRepository {
     }
 
     @Override
+    @Transactional
     public void postNewEntry(List<BookIndex> bookIndexes) {
 
         String sql = """

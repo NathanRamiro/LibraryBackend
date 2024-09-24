@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Repository
@@ -55,6 +56,7 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
     }
 
     @Override
+    @Transactional
     public List<BookUnit> postNewUnit(List<Integer> index_id_List) {
 
         if (index_id_List.size() == 0) {

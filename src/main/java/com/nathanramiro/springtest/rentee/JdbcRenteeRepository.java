@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Repository
@@ -102,6 +103,7 @@ public class JdbcRenteeRepository implements RenteeRepository {
     }
 
     @Override
+    @Transactional
     public void postNewRentee(List<Rentee> rentees) {
 
         HashMap<String, String> valMap = new HashMap<>();
