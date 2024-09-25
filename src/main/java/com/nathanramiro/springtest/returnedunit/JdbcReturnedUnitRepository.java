@@ -71,35 +71,6 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
             paramMap.put("returned_date" + i, returnedUnits.get(i).returned_date().toString());
         }
 
-        String findMatchSql = """
-                WITH vals(taken_id)
-                AS (
-                VALUES :params
-                )
-                SELECT v.taken_id
-                FROM vals v
-                LEFT JOIN taken_unit tul
-                ON v.taken_id = tul.taken_id
-                WHERE tul.taken_id IS NULL
-                """;
-
-        String matchParams = "";
-        for (int i = 0; i < returnedUnits.size(); i++) {
-            matchParams += "(:taken_id" + i + "::integer),";
-        }
-        matchParams = matchParams.substring(0, matchParams.length() - 1);
-
-        List<Integer> invalidIDs = jdbcClient.sql(findMatchSql.replace(":params", matchParams))
-                .params(paramMap)
-                .query(Integer.class)
-                .list();
-
-        if (invalidIDs.size() > 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "the request Has invalid IDs:" + invalidIDs.toString());
-        }
-
         String sql = """
                 INSERT INTO returned_unit (taken_id,returned_date)
                 VALUES :params

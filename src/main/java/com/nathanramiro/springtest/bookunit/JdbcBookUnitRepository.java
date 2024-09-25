@@ -79,25 +79,6 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
         }
         vals = vals.substring(0, vals.length() - 1);
 
-        String findMatchSql = """
-                WITH vals(index_id)
-                AS (VALUES :vals)
-                SELECT v.index_id
-                FROM book_index bi RIGHT JOIN vals v
-                ON bi.index_id = v.index_id
-                WHERE bi.index_id IS NULL
-                """;
-
-        List<Integer> invalidIDs = jdbcClient.sql(findMatchSql.replace(":vals", vals))
-                .query(Integer.class)
-                .list();
-
-        if (invalidIDs.size() > 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "request contains invalid books:" + invalidIDs.toString());
-        }
-
         String sql = """
                 INSERT INTO book_unit (index_id)
                 VALUES :vals

@@ -95,39 +95,6 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
             }
         }
 
-        String findMatchSql = """
-                WITH vals(unit_id, rentee_id)
-                AS (
-                VALUES :params
-                )
-                SELECT bu.unit_id, r.rentee_id
-                FROM vals v
-                LEFT JOIN book_unit bu ON
-                v.unit_id = bu.unit_id
-                LEFT JOIN rentee r ON
-                v.rentee_id = r.rentee_id
-                WHERE bu.unit_id IS NULL
-                OR r.rentee_id IS NULL
-                """;
-
-        String matchParams = "";
-        for (int i = 0; i < takenUnitList.size(); i++) {
-            matchParams += "(:unit_id" + i + "::integer,:rentee_id" + i + "::integer),";
-        }
-        matchParams = matchParams.substring(0, matchParams.length() - 1);
-
-        List<TakenUnit> invalidIDs = jdbcClient.sql(findMatchSql.replace(":params", matchParams))
-                .params(paramMap)
-                .query(TakenUnit.class)
-                .list();
-
-        if (invalidIDs.size() > 0) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "some entries have invalid IDs:" + invalidIDs.size());
-        }
-
         String validBooksSql = """
                 WITH vals(unit_id)
                 AS (
