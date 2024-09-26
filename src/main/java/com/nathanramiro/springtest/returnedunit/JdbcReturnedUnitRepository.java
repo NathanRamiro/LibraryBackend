@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -56,17 +57,22 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
                     "request must not be empty");
         }
 
+        HashMap<String, String> paramMap = new HashMap<>();
         HashSet<Integer> dupIDs = new HashSet<>();
         for (int i = 0; i < returnedUnits.size(); i++) {
+
+            if (returnedUnits.get(i) == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "request must not contain null itens");
+            }
+
             if (!dupIDs.add(returnedUnits.get(i).taken_id())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "request must not contain duplicate IDs" + returnedUnits.get(i).taken_id());
             }
-        }
 
-        HashMap<String, String> paramMap = new HashMap<>();
-        for (int i = 0; i < returnedUnits.size(); i++) {
             paramMap.put("taken_id" + i, returnedUnits.get(i).taken_id().toString());
             paramMap.put("returned_date" + i, returnedUnits.get(i).returned_date().toString());
         }
@@ -83,9 +89,20 @@ public class JdbcReturnedUnitRepository implements ReturnedUnitRepository {
         }
         params = params.substring(0, params.length() - 1);
 
-        jdbcClient.sql(sql.replace(":params", params))
-                .params(paramMap)
-                .update();
+        try {
+
+            jdbcClient.sql(sql.replace(":params", params))
+                    .params(paramMap)
+                    .update();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "the request contains invalid data");
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "an unknown error has occured");
+        }
     }
 
 }

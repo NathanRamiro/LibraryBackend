@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -85,9 +86,20 @@ public class JdbcBookUnitRepository implements BookUnitRepository {
                 RETURNING *
                 """;
 
-        return jdbcClient.sql(sql.replace(":vals", vals))
-                .query(BookUnit.class)
-                .list();
+        try {
+
+            return jdbcClient.sql(sql.replace(":vals", vals))
+                    .query(BookUnit.class)
+                    .list();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "the request contains invalid data");
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "an unknown error has occured");
+        }
 
     }
 

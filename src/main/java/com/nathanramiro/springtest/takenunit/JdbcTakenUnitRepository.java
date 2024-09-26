@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,50 +80,26 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
         }
 
         HashMap<String, String> paramMap = new HashMap<>();
-        for (int i = 0; i < takenUnitList.size(); i++) {
-            paramMap.put("unit_id" + i, takenUnitList.get(i).unit_id().toString());
-            paramMap.put("rentee_id" + i, takenUnitList.get(i).rentee_id().toString());
-            paramMap.put("taken_date" + i, takenUnitList.get(i).taken_date().toString());
-            paramMap.put("due_date" + i, takenUnitList.get(i).due_date().toString());
-        }
-
         HashSet<Integer> dupUnits = new HashSet<>();
         for (int i = 0; i < takenUnitList.size(); i++) {
+
+            if (takenUnitList.get(i) == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "request must not contain null itens");
+            }
+
             if (!dupUnits.add(takenUnitList.get(i).unit_id())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "request must not contain duplicate units:"
                                 + takenUnitList.get(i).unit_id());
             }
-        }
 
-        String validBooksSql = """
-                WITH vals(unit_id)
-                AS (
-                VALUES :params
-                )
-                SELECT v.unit_id
-                FROM vals v
-                INNER JOIN book_unit bu ON
-                v.unit_id = bu.unit_id
-                WHERE bu.available = FALSE
-                """;
-
-        String validBKParams = "";
-        for (int i = 0; i < takenUnitList.size(); i++) {
-            validBKParams += "(:unit_id" + i + "::integer),";
-        }
-        validBKParams = validBKParams.substring(0, validBKParams.length() - 1);
-
-        List<Integer> notAvail = jdbcClient.sql(validBooksSql.replace(":params", validBKParams))
-                .params(paramMap)
-                .query(Integer.class)
-                .list();
-
-        if (notAvail.size() > 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "some units are marked as already taken:" + notAvail.toString());
+            paramMap.put("unit_id" + i, takenUnitList.get(i).unit_id().toString());
+            paramMap.put("rentee_id" + i, takenUnitList.get(i).rentee_id().toString());
+            paramMap.put("taken_date" + i, takenUnitList.get(i).taken_date().toString());
+            paramMap.put("due_date" + i, takenUnitList.get(i).due_date().toString());
         }
 
         String sql = """
@@ -138,8 +116,23 @@ public class JdbcTakenUnitRepository implements TakenUnitRepository {
         }
         params = params.substring(0, params.length() - 1);
 
-        jdbcClient.sql(sql.replace(":params", params))
-                .params(paramMap)
-                .update();
+        try {
+
+            jdbcClient.sql(sql.replace(":params", params))
+                    .params(paramMap)
+                    .update();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "the request contains invalid data");
+        } catch (UncategorizedSQLException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "some units are set as already taken");
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "an unknown error has occured");
+        }
     }
 }
