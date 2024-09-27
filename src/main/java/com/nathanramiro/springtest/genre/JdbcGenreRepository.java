@@ -96,4 +96,22 @@ public class JdbcGenreRepository implements GenreRepository {
                 .param("inParams", indexGenreComp.genres())
                 .update();
     }
+
+    @Override
+    @Transactional
+    public void postAddIndexIDToGenre(Integer index_id, List<String> genres) {
+
+        String sql = """
+                INSERT INTO genre_to_index_map (index_id,genre_id)
+                SELECT :index_id, g.genre_id
+                FROM genre g
+                WHERE g.genre_name IN (:inParams)
+                ON CONFLICT DO NOTHING
+                """;
+
+        jdbcClient.sql(sql)
+                .param("index_id", index_id)
+                .param("inParams", genres)
+                .update();
+    }
 }

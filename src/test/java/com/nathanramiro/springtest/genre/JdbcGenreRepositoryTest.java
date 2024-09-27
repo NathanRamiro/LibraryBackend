@@ -77,4 +77,10 @@ public class JdbcGenreRepositoryTest {
 
         repository.postNewGenre(List.of(new Genre(null, "unitTest3")));
     }
+
+    @Test
+    void testPostAddIndexIDToGenre() {
+        repository.postAddIndexIDToGenre(
+                1, List.of("genreName"));
+    }
 }

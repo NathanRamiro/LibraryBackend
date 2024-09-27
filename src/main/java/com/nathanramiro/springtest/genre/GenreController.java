@@ -28,7 +28,7 @@ public class GenreController {
     }
 
     @GetMapping("/find/name")
-    public List<String> getByName(@RequestParam String genre_name){
+    public List<String> getByName(@RequestParam String genre_name) {
 
         return jdbcGenreRepository.getByName(genre_name);
     }
@@ -46,7 +46,15 @@ public class GenreController {
 
         for (IndexGenreComp currComp : indexGenreComp) {
 
-            jdbcGenreRepository.postAddIndexToGenre(currComp);
+            if (currComp.bookIndex().index_id() == null) {
+
+                jdbcGenreRepository.postAddIndexToGenre(currComp);
+            } else {
+
+                jdbcGenreRepository.postAddIndexIDToGenre(
+                        currComp.bookIndex().index_id(),
+                        currComp.genres());
+            }
         }
     }
 

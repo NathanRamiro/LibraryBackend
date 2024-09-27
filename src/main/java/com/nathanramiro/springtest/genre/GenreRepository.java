@@ -10,4 +10,6 @@ public interface GenreRepository {
     void postNewGenre(List<Genre> genres);
 
     void postAddIndexToGenre(IndexGenreComp indexGenreComp);
+
+    void postAddIndexIDToGenre(Integer index_id, List<String> genres);
 }
