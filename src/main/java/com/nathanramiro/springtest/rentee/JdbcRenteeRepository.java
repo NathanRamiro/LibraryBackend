@@ -115,24 +115,18 @@ public class JdbcRenteeRepository implements RenteeRepository {
 
             Rentee currRentee = rentees.get(i);
 
-            try {
-                if (!currRentee.hasValidPhone()) {
-                    hasError = true;
-                    errors += "rentee[" + i + "]:invalid phone number ("
-                            + currRentee.rentee_phone() + ");";
-                }
-            } catch (NullPointerException e) {
-                // all good
+            if (currRentee.rentee_phone() != null && !currRentee.hasValidPhone()) {
+                hasError = true;
+                errors += "rentee[" + i + "]:invalid phone number ("
+                        + currRentee.rentee_phone() + ");";
             }
-            try {
-                if (!currRentee.hasValidEmail()) {
-                    hasError = true;
-                    errors += "rentee[" + i + "]:invalid e-mail ("
-                            + currRentee.rentee_email() + ");";
-                }
-            } catch (NullPointerException e) {
-                // all good
+
+            if (currRentee.rentee_email() != null && !currRentee.hasValidEmail()) {
+                hasError = true;
+                errors += "rentee[" + i + "]:invalid e-mail ("
+                        + currRentee.rentee_email() + ");";
             }
+
             if (hasError) {
                 continue;
             }
